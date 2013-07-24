@@ -1,0 +1,3 @@
+#!/bin/sh
+mkdir /mnt/nfs
+mount -t nfs -o nolock server.internal:/data /mnt/nfs

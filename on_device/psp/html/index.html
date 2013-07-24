@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="viewport" content="initial-scale=1.0; maximum-scale=1.0; user-scalable=0;"/>
+	<link rel="stylesheet" href="/assets/iui/iui.css" type="text/css" />
+	<!--<link rel="stylesheet" href="/assets/iui/t/default/default-theme.css" type="text/css"/>-->
+	<link rel="stylesheet" href="/assets/iui/t/webos/webos-theme.css" type="text/css" />
+	<script src="/assets/js/zepto.min.js"></script>
+	<script type="application/x-javascript" src="/assets/iui/iui.js"></script>
+	<style>
+		body.landscape > :not(.toolbar) {
+			min-height: 240px;
+		}
+
+		.panel {
+			padding: 3px;
+		}
+
+		body {
+			overflow: hidden;
+		}
+
+		div.spinner {
+			display:block;
+			display:none;
+			background: black url(/assets/iui/t/default/loading.png) no-repeat center center;
+			position: absolute;
+			top: 0px;
+			left: 0px;
+			height: 100% !important;
+			width: 100%;
+			opacity: 0.9;
+			z-index:999;
+		}
+
+		#dim_overlay {
+			display:block;
+			display:none;
+			position: absolute;
+			background: black url(/assets/img/standby.png) no-repeat center center;
+			top: 0px;
+			left: 0px;
+			height: 100% !important;
+			width: 100%;
+			z-index:999;
+		}
+
+		img {
+			max-width: 100%;
+		}
+
+		img {
+			vertical-align: middle;
+		}
+	</style>
+</head>
+<body>
+	<div class="toolbar">
+		<h1 id="pageTitle"></h1>
+		<a id="homeButton" style="display: none;" onclick="return go_home()" class="button leftButton" href="#welcomepage">Home</a>
+		<a class="button blueButton" onclick="return show_home_button()" id="toolsbutton" href="#tools">Tools</a>
+	</div>
+<!--
+	<div id="welcomepage" title="Chumby BTSync" class="panel" selected="true">
+		<fieldset>
+			
+		</fieldset>
+	</div>
+-->
+	<ul id="welcomepage" title="Chumby BTSync" selected="true">
+	</ul>
+
+	<ul id="tools" title="Tools">
+		<li><a onclick="return dim_screen()"><img src="/assets/img/pda.png"> Dim screen</a></li>
+		<li class="group">Administrative Tools</li>
+		<li><a href="#admintools"><img src="/assets/img/system-run.png"> Configuration &amp; Settings</a></li>
+	</ul>
+
+	<ul id="admintools" title="Admin Tools">
+		<li><a href="#diaglist" onclick="return diag()" >Diagnostic Information</a></li>
+	</ul>
+
+	<ul id="diaglist" title="Diagnostic">
+		<li><a>Chumby's IP <span id="selfip">...</span></a></li>
+	</ul>
+
+	<div id="loadingscreen" class="spinner">
+	</div>
+
+	<div id="dim_overlay" onclick="return undim_screen()">
+	</div>
+
+	<script>
+		dimTimer = setTimeout("dim_screen();", 1800000);
+
+		function dim_screen() {
+			$('#dim_overlay').show();
+			return false;
+		}
+
+		function undim_screen() {
+			$('#dim_overlay').hide();
+			clearTimeout(dimTimer);
+			dimTimer = setTimeout("dim_screen();", 1800000);
+			return false;
+		}
+
+		function show_home_button() {
+			$('#homeButton').show();
+		}
+
+		function hide_home_button() {
+			$('#homeButton').hide();
+		}
+
+		function go_home() {
+			iui.showPageById('welcomepage');
+			hide_home_button();
+		}
+
+		function show_spinner(duration) {
+			$('#loadingscreen').show();
+			if (duration)
+				setTimeout("hide_spinner()",duration);
+			return false;
+		}
+
+		function hide_spinner() {
+			$('#loadingscreen').hide();
+		}
+
+// Stolen from uTorrent
+
+var timer;
+var errorCount = 0;
+var urlBase = window.location.pathname.split("/", 1)[0].replace(/\/+$/, "");
+var guiBase = urlBase + "/gui/";
+var proxyBase = urlBase + "/proxy";
+var version = 0;
+var osType;
+
+var utWebUI = {
+	request: function(a, e, d, b) 
+	{
+		if(typeof(b) != "array") 
+		{
+			b = [0]
+		}
+		var c = this;
+		var f = function() 
+		{
+			$.ajax(
+			{
+				url: guiBase + "?token=" + c.TOKEN + "&" + a + "&t=" + Date.now(),
+				method: "get",
+				async: typeof(d) === "undefined" || !! d,
+				dataType: "json",
+				error: function (xhr, ajaxOptions, thrownError) 
+				{
+					errorCount++;
+					if (errorCount > 10)
+					{
+						clearInterval(timer);
+						timer = setInterval(Update, 5000);
+					}
+				},
+				success: function(f, status, xhr)
+				{
+					if (errorCount > 0)
+					{
+						errorCount = 0;
+						clearInterval(timer);
+						timer = setInterval(Update, 1000);
+					}
+					e(f);
+				}
+			});		
+		}
+		if(!c.TOKEN) 
+		{
+			c.requestToken(f, true)
+		} 
+
+		f()
+
+	},
+	requestToken: function(c, b) 
+	{
+		var a = this;
+		$.ajax({
+			type: "POST",
+			url: guiBase + "token.html?t=" + Date.now(),
+			async: false,
+			success: function( f, status, xhr ) 
+			{
+				var e = f.match(/>([^<]+)</);
+				if(e) {
+					a.TOKEN = e[e.length - 1]
+				}
+			}
+		});
+	},
+	getOsType: function(b, c) 
+	{
+		this.request("action=getostype", b, c);
+	},
+	getVersion: function(b, c) 
+	{
+		this.request("action=getversion", b, c);
+	},
+	addSyncFolder: function(n, s, f) 
+	{
+		var name = encodeURIComponent(n);
+		var secret = encodeURIComponent(s);
+
+		this.request("action=addsyncfolder&name=" + name + "&secret=" + secret, f);
+	},
+	addForceSyncFolder: function(name, secret, f) 
+	{
+		this.request("action=addsyncfolder&name=" + name + "&secret=" + encodeURIComponent(secret) + "&force=1", f);
+	},
+	removeSyncFolder: function(n, s, f) 
+	{
+		var name = encodeURIComponent(n);
+		var secret = encodeURIComponent(s);
+
+		this.request("action=removefolder&name=" + name + "&secret=" + secret, f);
+	},
+	generateSecret: function(f) 
+	{
+		this.request("action=generatesecret", f);
+	},
+	getSettings: function(b) 
+	{
+		this.request("action=getsettings", b);
+	},
+	setSettings: function(a, b) 
+	{
+		this.request("action=setsettings" + a, b);
+	},
+	getSyncFolders: function(b) 
+	{
+		this.request("action=getsyncfolders", b)
+	},
+	checkNewVersion: function(b) 
+	{
+		this.request("action=checknewversion", b)
+	},
+	getFolderPreferences: function(n, s, f) 
+	{
+		var name = encodeURIComponent(n);
+		var secret = encodeURIComponent(s);
+
+		this.request("action=getfolderpref&name=" + name + "&secret=" + secret, f);
+	},
+	setFolderPreferences: function(name, secret, a, b) 
+	{
+		this.request("action=setfolderpref&name=" + name + "&secret=" + secret + a, b);
+	},
+	getHosts: function(n, s, f) 
+	{
+		var name = encodeURIComponent(n);
+		var secret = encodeURIComponent(s);
+
+		this.request("action=getknownhosts&name=" + name + "&secret=" + secret, f);
+	},
+	addHost: function(n, s, addr, port, f)
+	{
+		var name = encodeURIComponent(n);
+		var secret = encodeURIComponent(s);
+
+		this.request("action=addknownhosts&name=" + name + "&secret=" + secret + "&addr=" + addr + "&port=" + port, f);
+	},
+	removeHost: function(n, s, index, f)
+	{
+		var name = encodeURIComponent(n);
+		var secret = encodeURIComponent(s);
+
+		this.request("action=removeknownhosts&name=" + name + "&secret=" + secret + "&index=" + index, f);
+	},
+	updateSecret: function(n, s, newsecret, f)
+	{
+		var name = encodeURIComponent(n);
+		var secret = encodeURIComponent(s);
+
+		this.request("action=updatesecret&name=" + name + "&secret=" + secret + "&newsecret=" + newsecret, f);
+	},
+	generateInvite: function(n, s, f)
+	{
+		var name = encodeURIComponent(n);
+		var secret = encodeURIComponent(s);
+
+		this.request("action=generateinvite&name=" + name + "&secret=" + secret, f);
+	},
+	generateROInvite: function(n, s, f)
+	{
+		var name = encodeURIComponent(n);
+		var secret = encodeURIComponent(s);
+
+		this.request("action=generateroinvite&name=" + name + "&secret=" + secret, f);
+	},
+	licenseAccept: function(f) 
+	{
+		this.request("action=accept", f);
+	},
+	licenseCancel: function(f) 
+	{
+		this.request("action=cancel", f);
+	},
+	needLicense: function(f) 
+	{
+		this.request("action=license", f);
+	},
+};
+
+//first, checks if it isn't implemented yet
+if (!String.prototype.format) {
+  String.prototype.format = function() {
+    var args = arguments;
+    return this.replace(/{(\d+)}/g, function(match, number) { 
+      return typeof args[number] != 'undefined'
+        ? args[number]
+        : match
+      ;
+    });
+  };
+}
+
+function getFolders()
+{
+	utWebUI.getSyncFolders(function(c)
+	{
+		$('#welcomepage').empty();
+		$("#welcomepage").append('<li class="group">{0}</li>'.format(c.speed));
+
+		var nameIndex = 0;
+		var sizeIndex = 1;
+		var folders = c.folders;
+
+		//console.log (folders);
+		$.each(folders, function(idx, folder){
+			//console.log('item %d is: %s', index, item)
+			var pathItems = folder.name.split("/");
+			var name = pathItems[pathItems.length-1];
+			var peers = folder.peers.length;
+			var sizeInfo = folder.size.split(" in ");
+			var size = sizeInfo[0];
+			console.log('<li><a href="#">{0} [{2}:{1}]</a></li>'.format(name, size, peers));
+			$('#welcomepage').append('<li>{0} [{1}]/{2}</li>'.format(name, size, peers));
+		});
+
+	});
+}
+setInterval(getFolders, 5000);
+
+	</script>
+
+</body>
+</html>
