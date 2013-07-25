@@ -38,7 +38,7 @@
 			display:block;
 			display:none;
 			position: absolute;
-			background: black url(/assets/img/standby.png) no-repeat center center;
+			/*background: black url(/assets/img/standby.png) no-repeat center center;*/
 			top: 0px;
 			left: 0px;
 			height: 100% !important;
@@ -92,15 +92,39 @@
 	</div>
 
 	<script>
+        function request_backend(cmd, async, callback, callback_error) {
+            $.ajax(
+            {
+                url: "/request_sys?t=" + Date.now() + "&" + cmd,
+                method: "get",
+                async: typeof(async) === "undefined" || !! async,
+                dataType: "json",
+                error: function (xhr, ajaxOptions, thrownError) 
+                {
+                    if (typeof(callback_error) !== "undefined") {
+                        callback_error();
+                    }
+                },
+                success: function(f, status, xhr)
+                {
+                    if (typeof(callback) !== "undefined") {
+                        callback(f);
+                    }
+                }
+            });
+        }
+        
 		dimTimer = setTimeout("dim_screen();", 1800000);
 
 		function dim_screen() {
 			$('#dim_overlay').show();
+			request_backend("cmd=set_brightness&val=10");
 			return false;
 		}
 
 		function undim_screen() {
 			$('#dim_overlay').hide();
+			request_backend("cmd=set_brightness&val=60");
 			clearTimeout(dimTimer);
 			dimTimer = setTimeout("dim_screen();", 1800000);
 			return false;
@@ -346,7 +370,7 @@ function getFolders()
 			var peers = folder.peers.length;
 			var sizeInfo = folder.size.split(" in ");
 			var size = sizeInfo[0];
-			console.log('<li><a href="#">{0} [{2}:{1}]</a></li>'.format(name, size, peers));
+			//console.log('<li><a href="#">{0} [{2}:{1}]</a></li>'.format(name, size, peers));
 			$('#welcomepage').append('<li>{0} [{1}]/{2}</li>'.format(name, size, peers));
 		});
 

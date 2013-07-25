@@ -370,10 +370,14 @@ else
         | tar xz -C /mnt/storage/btsync \
             || fail "Unable to extract btsync tarball"
 
+    ${EXTRACT_CMD} ${EXTRACT_ARG} ${UPDATE_FILE} backend_server.tar.gz \
+        | tar xz -C /mnt/storage \
+            || fail "Unable to extract backend_server tarball"
+
     ${EXTRACT_CMD} ${EXTRACT_ARG} ${UPDATE_FILE} tslib.tar.gz \
         | tar xz -C /mnt/storage \
             || fail "Unable to extract tslib tarball"
-
+            
     ${EXTRACT_CMD} ${EXTRACT_ARG} ${UPDATE_FILE} pcsensorpack.tar.gz \
         | tar xz -C /mnt/storage \
             || fail "Unable to extract pcsensorpack tarball"

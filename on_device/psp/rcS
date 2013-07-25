@@ -152,6 +152,7 @@ source /psp/chumby.env
 
 echo -n "Starting httpd.." | fbwrite --color=255,255,255 --pos=1,12 -
 #/usr/sbin/httpd -h /www
+/mnt/storage/bin/backend_server &
 /mnt/storage/nginx/sbin/nginx -c /psp/nginx.conf
 echo -n "ok" | fbwrite --color=255,255,255 --pos=$OKPOS,12 -
 
