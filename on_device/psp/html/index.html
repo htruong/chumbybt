@@ -60,7 +60,6 @@
 		}
 
 		.folderinfo {
-			font-size: small;
 			width: 125px;
 			padding-right: 10px;
 			text-align: right;
@@ -88,6 +87,7 @@
 			height: 172px;
 			overflow-x: hidden;
 			overflow-y: hidden;
+			font-size: small;
 		}
 	</style>
 </head>
@@ -113,7 +113,7 @@
 		<li><a onclick="return dim_screen()"><img src="/assets/img/pda.png"> Dim screen</a></li>
 		<li class="group">Administrative Tools</li>
 		<li><a href="#admintools"><img src="/assets/img/system-run.png"> Configuration &amp; Settings</a></li>
-		<li><a onclick="return rquest_backend('cmd=shutdown')"><img src="/assets/img/pda.png"> Shutdown</a></li>
+		<li><a onclick="return request_backend('cmd=shutdown')"><img src="/assets/img/pda.png"> Shutdown</a></li>
 	</ul>
 
 	<ul id="admintools" title="Admin Tools">
@@ -405,50 +405,6 @@ function getFolders()
 			var sizeInfo = folder.size.split(" in ");
 			var size = sizeInfo[0];
 			//console.log('<li><a href="#">{0} [{2}:{1}]</a></li>'.format(name, size, peers));
-			$('#sharedfolders').append('<div>\
-				<span class="foldername">{0}</span>\
-				<span class="folderinfo">{2} peers | {1}</span>\
-				</div>'.format(name, size, peers));
-			$('#sharedfolders').append('<div>\
-				<span class="foldername">{0}</span>\
-				<span class="folderinfo">{2} peers | {1}</span>\
-				</div>'.format(name, size, peers));
-			$('#sharedfolders').append('<div>\
-				<span class="foldername">{0}</span>\
-				<span class="folderinfo">{2} peers | {1}</span>\
-				</div>'.format(name, size, peers));
-			$('#sharedfolders').append('<div>\
-				<span class="foldername">{0}</span>\
-				<span class="folderinfo">{2} peers | {1}</span>\
-				</div>'.format(name, size, peers));
-			$('#sharedfolders').append('<div>\
-				<span class="foldername">{0}</span>\
-				<span class="folderinfo">{2} peers | {1}</span>\
-				</div>'.format(name, size, peers));
-			$('#sharedfolders').append('<div>\
-				<span class="foldername">{0}</span>\
-				<span class="folderinfo">{2} peers | {1}</span>\
-				</div>'.format(name, size, peers));
-			$('#sharedfolders').append('<div>\
-				<span class="foldername">{0}</span>\
-				<span class="folderinfo">{2} peers | {1}</span>\
-				</div>'.format(name, size, peers));
-			$('#sharedfolders').append('<div>\
-				<span class="foldername">{0}</span>\
-				<span class="folderinfo">{2} peers | {1}</span>\
-				</div>'.format(name, size, peers));
-			$('#sharedfolders').append('<div>\
-				<span class="foldername">{0}</span>\
-				<span class="folderinfo">{2} peers | {1}</span>\
-				</div>'.format(name, size, peers));
-			$('#sharedfolders').append('<div>\
-				<span class="foldername">{0}</span>\
-				<span class="folderinfo">{2} peers | {1}</span>\
-				</div>'.format(name, size, peers));
-			$('#sharedfolders').append('<div>\
-				<span class="foldername">{0}</span>\
-				<span class="folderinfo">{2} peers | {1}</span>\
-				</div>'.format(name, size, peers));
 			$('#sharedfolders').append('<div>\
 				<span class="foldername">{0}</span>\
 				<span class="folderinfo">{2} peers | {1}</span>\
