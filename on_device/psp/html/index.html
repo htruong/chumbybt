@@ -10,7 +10,7 @@
 	<script type="application/x-javascript" src="/assets/iui/iui.js"></script>
 	<style>
 		body.landscape > :not(.toolbar) {
-			min-height: 240px;
+			min-height: 210px;
 		}
 
 		.panel {
@@ -38,7 +38,7 @@
 			display:block;
 			display:none;
 			position: absolute;
-			/*background: black url(/assets/img/standby.png) no-repeat center center;*/
+			background: transparent;
 			top: 0px;
 			left: 0px;
 			height: 100% !important;
@@ -48,18 +48,54 @@
 
 		img {
 			max-width: 100%;
+			vertical-align: middle;
 		}
 
-		img {
-			vertical-align: middle;
+		#status {
+			text-align: center;
+			bottom: 0;
+			-webkit-border-radius: 15px;
+			-moz-border-radius: 15px;
+			border-radius: 15px;
+		}
+
+		.folderinfo {
+			font-size: small;
+			width: 125px;
+			padding-right: 10px;
+			text-align: right;
+			display: inline-block;
+			overflow: hidden;
+		}
+
+		.leftButton {
+			left: 0 !important;
+		}
+
+		.foldername {
+			font-weight: bold;
+			width: 150px;
+			padding-left: 10px;
+			display: inline-block;
+			overflow: hidden;
+		}
+
+		#sharedfolders div {
+			border-bottom: 1px solid #ccc;
+		}
+
+		#sharedfolders {
+			height: 172px;
+			overflow-x: hidden;
+			overflow-y: hidden;
 		}
 	</style>
 </head>
 <body>
 	<div class="toolbar">
 		<h1 id="pageTitle"></h1>
-		<a id="homeButton" style="display: none;" onclick="return go_home()" class="button leftButton" href="#welcomepage">Home</a>
-		<a class="button blueButton" onclick="return show_home_button()" id="toolsbutton" href="#tools">Tools</a>
+		<!--<a id="homeButton" style="display: none;" onclick="return go_home()" class="button leftButton" href="#welcomepage">Home</a>-->
+		<a class="button leftButton" onclick="return go_home();" id="toolsbutton" href="#tools">Tools</a>
 	</div>
 <!--
 	<div id="welcomepage" title="Chumby BTSync" class="panel" selected="true">
@@ -69,12 +105,15 @@
 	</div>
 -->
 	<ul id="welcomepage" title="Chumby BTSync" selected="true">
+		<li id="sharedfolders"></li>
+		<li class="group" id="status">Initializing...</li>
 	</ul>
 
 	<ul id="tools" title="Tools">
 		<li><a onclick="return dim_screen()"><img src="/assets/img/pda.png"> Dim screen</a></li>
 		<li class="group">Administrative Tools</li>
 		<li><a href="#admintools"><img src="/assets/img/system-run.png"> Configuration &amp; Settings</a></li>
+		<li><a onclick="return rquest_backend('cmd=shutdown')"><img src="/assets/img/pda.png"> Shutdown</a></li>
 	</ul>
 
 	<ul id="admintools" title="Admin Tools">
@@ -82,7 +121,7 @@
 	</ul>
 
 	<ul id="diaglist" title="Diagnostic">
-		<li><a>Chumby's IP <span id="selfip">...</span></a></li>
+		<li>Chumby's IP <span id="selfip">[?.?.?.?]</span></li>
 	</ul>
 
 	<div id="loadingscreen" class="spinner">
@@ -112,13 +151,14 @@
                     }
                 }
             });
+            return false;
         }
         
-		dimTimer = setTimeout("dim_screen();", 1800000);
+		//dimTimer = setTimeout("dim_screen();", 3000000);
 
 		function dim_screen() {
 			$('#dim_overlay').show();
-			request_backend("cmd=set_brightness&val=10");
+			request_backend("cmd=set_brightness&val=0");
 			return false;
 		}
 
@@ -126,21 +166,16 @@
 			$('#dim_overlay').hide();
 			request_backend("cmd=set_brightness&val=60");
 			clearTimeout(dimTimer);
-			dimTimer = setTimeout("dim_screen();", 1800000);
+			//dimTimer = setTimeout("dim_screen();", 3000000);
 			return false;
 		}
 
-		function show_home_button() {
-			$('#homeButton').show();
-		}
-
-		function hide_home_button() {
-			$('#homeButton').hide();
-		}
-
 		function go_home() {
-			iui.showPageById('welcomepage');
-			hide_home_button();
+			if (window.location.href.substring(window.location.href.indexOf("#")+1) == '_tools') {
+				iui.showPageById('welcomepage');	
+				return false;
+			}
+			return true;
 		}
 
 		function show_spinner(duration) {
@@ -355,8 +390,7 @@ function getFolders()
 {
 	utWebUI.getSyncFolders(function(c)
 	{
-		$('#welcomepage').empty();
-		$("#welcomepage").append('<li class="group">{0}</li>'.format(c.speed));
+		$('#sharedfolders').empty();
 
 		var nameIndex = 0;
 		var sizeIndex = 1;
@@ -371,12 +405,63 @@ function getFolders()
 			var sizeInfo = folder.size.split(" in ");
 			var size = sizeInfo[0];
 			//console.log('<li><a href="#">{0} [{2}:{1}]</a></li>'.format(name, size, peers));
-			$('#welcomepage').append('<li>{0} [{1}]/{2}</li>'.format(name, size, peers));
+			$('#sharedfolders').append('<div>\
+				<span class="foldername">{0}</span>\
+				<span class="folderinfo">{2} peers | {1}</span>\
+				</div>'.format(name, size, peers));
+			$('#sharedfolders').append('<div>\
+				<span class="foldername">{0}</span>\
+				<span class="folderinfo">{2} peers | {1}</span>\
+				</div>'.format(name, size, peers));
+			$('#sharedfolders').append('<div>\
+				<span class="foldername">{0}</span>\
+				<span class="folderinfo">{2} peers | {1}</span>\
+				</div>'.format(name, size, peers));
+			$('#sharedfolders').append('<div>\
+				<span class="foldername">{0}</span>\
+				<span class="folderinfo">{2} peers | {1}</span>\
+				</div>'.format(name, size, peers));
+			$('#sharedfolders').append('<div>\
+				<span class="foldername">{0}</span>\
+				<span class="folderinfo">{2} peers | {1}</span>\
+				</div>'.format(name, size, peers));
+			$('#sharedfolders').append('<div>\
+				<span class="foldername">{0}</span>\
+				<span class="folderinfo">{2} peers | {1}</span>\
+				</div>'.format(name, size, peers));
+			$('#sharedfolders').append('<div>\
+				<span class="foldername">{0}</span>\
+				<span class="folderinfo">{2} peers | {1}</span>\
+				</div>'.format(name, size, peers));
+			$('#sharedfolders').append('<div>\
+				<span class="foldername">{0}</span>\
+				<span class="folderinfo">{2} peers | {1}</span>\
+				</div>'.format(name, size, peers));
+			$('#sharedfolders').append('<div>\
+				<span class="foldername">{0}</span>\
+				<span class="folderinfo">{2} peers | {1}</span>\
+				</div>'.format(name, size, peers));
+			$('#sharedfolders').append('<div>\
+				<span class="foldername">{0}</span>\
+				<span class="folderinfo">{2} peers | {1}</span>\
+				</div>'.format(name, size, peers));
+			$('#sharedfolders').append('<div>\
+				<span class="foldername">{0}</span>\
+				<span class="folderinfo">{2} peers | {1}</span>\
+				</div>'.format(name, size, peers));
+			$('#sharedfolders').append('<div>\
+				<span class="foldername">{0}</span>\
+				<span class="folderinfo">{2} peers | {1}</span>\
+				</div>'.format(name, size, peers));
+			
 		});
 
+		$("#status").html(c.speed);
 	});
 }
-setInterval(getFolders, 5000);
+request_backend("cmd=set_brightness&val=60");
+getFolders();
+setInterval(getFolders, 30000);
 
 	</script>
 

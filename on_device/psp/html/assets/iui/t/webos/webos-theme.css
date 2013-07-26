@@ -8,9 +8,9 @@ body {
 }
 body > *:not(.toolbar) {
     top: 					30px;
-	-webkit-border-radius: 	15px;
-	-moz-border-radius: 	15px;
-	border-radius: 			15px;
+	-webkit-border-radius: 	11px;
+	-moz-border-radius: 	11px;
+	border-radius: 			11px;
 	background:				#e8e8e6;
 }
 
@@ -102,7 +102,7 @@ body > ul {
 }
 
 body > ul > li {
-    padding: 		12px 0 12px 10px;
+    /*padding: 		12px 0 12px 10px;*/
 	font-weight:	normal;
 	font-size:		18px;
 	color:			#000;
@@ -140,7 +140,7 @@ body > ul > li > a
 body > .dialog {
 	top:		0px;
 	top:		0px;
-	min-height:	445px;
+	/*min-height:	445px;*/
 	background:	rgba(0,0,0,.5);
 	-webkit-border-radius: 	0;
 	-moz-border-radius: 	0;
