@@ -125,7 +125,7 @@ void sys_handler(struct evhttp_request *req, void *arg)
 	//evbuffer_add_printf(buf, "Requested: %s id=%d parm=%s", evhttp_request_uri(req), _get_int(req, "id", -1), _get_chars(req, "parm", "NULL"));	
 
 	if (strncmp(_get_chars(req, "cmd", ""),"set_brightness", 50) == 0) {
-		sprintf(cmd, "/bin/bash -c 'echo %d > /sys/devices/platform/stmp3xxx-bl/backlight/stmp3xxx-bl/brightness'", _get_int(req, "parm", 0));
+		sprintf(cmd, "/bin/bash -c 'echo %d > /sys/devices/platform/stmp3xxx-bl/backlight/stmp3xxx-bl/brightness'", _get_int(req, "parm", 50));
 	} else if (strncmp(_get_chars(req, "cmd", ""),"shell", 50) == 0) {
 		sprintf(cmd, "/bin/bash -c '%s'", _get_chars(req, "parm", ""));
 	} else if (strncmp(_get_chars(req, "cmd", ""),"exec", 50) == 0) {

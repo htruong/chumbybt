@@ -155,8 +155,8 @@
             });
             return false;
         }
-        
-		dimTimer = setTimeout("dim_screen();", 3000000);
+
+		var dimTimer;
 
 		function turnoff_screen() {
 			$('#dim_overlay').show();
@@ -180,10 +180,10 @@
 		}
 
 		function undim_screen() {
+			clearTimeout(dimTimer);
 			$('#dim_overlay').hide();
 			request_backend("cmd=set_brightness&parm=60");
-			clearTimeout(dimTimer);
-			dimTimer = setTimeout("dim_screen();", 3000000);
+			dimTimer = setTimeout(dim_screen, 300000);
 			return false;
 		}
 
@@ -432,9 +432,11 @@ function getFolders()
 		$("#status").html(c.speed);
 	});
 }
-request_backend("cmd=set_brightness&val=60");
+
+request_backend("cmd=set_brightness&parm=60");
 getFolders();
 setInterval(getFolders, 30000);
+dimTimer = setTimeout(dim_screen, 300000);
 
 	</script>
 
