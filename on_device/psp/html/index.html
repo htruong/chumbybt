@@ -159,6 +159,7 @@
 		var dimTimer;
 
 		function turnoff_screen() {
+			clearTimeout(dimTimer);
 			$('#dim_overlay').show();
 			request_backend("cmd=set_brightness&parm=0");
 			return false;
