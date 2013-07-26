@@ -84,7 +84,7 @@
 		}
 
 		#sharedfolders {
-			height: 172px;
+			height: 170px;
 			overflow-x: hidden;
 			overflow-y: hidden;
 			font-size: small;
@@ -110,10 +110,10 @@
 	</ul>
 
 	<ul id="tools" title="Tools">
-		<li><a onclick="return dim_screen()"><img src="/assets/img/pda.png"> Dim screen</a></li>
+		<li><a onclick="return turnoff_screen()"><img src="/assets/img/pda.png"> Turn off screen</a></li>
 		<li class="group">Administrative Tools</li>
 		<li><a href="#admintools"><img src="/assets/img/system-run.png"> Configuration &amp; Settings</a></li>
-		<li><a onclick="return request_backend('cmd=shutdown')"><img src="/assets/img/pda.png"> Shutdown</a></li>
+		<li><a onclick="return request_backend('cmd=shell&amp;parm=shutdown')"><img src="/assets/img/system-shutdown.png"> Shut down</a></li>
 	</ul>
 
 	<ul id="admintools" title="Admin Tools">
@@ -121,7 +121,7 @@
 	</ul>
 
 	<ul id="diaglist" title="Diagnostic">
-		<li>Chumby's IP <span id="selfip">[?.?.?.?]</span></li>
+		<li>Chumby's IP <span id="selfip">Wait!</span></li>
 	</ul>
 
 	<div id="loadingscreen" class="spinner">
@@ -138,35 +138,52 @@
                 method: "get",
                 async: typeof(async) === "undefined" || !! async,
                 dataType: "json",
-                error: function (xhr, ajaxOptions, thrownError) 
+                error: function (xhr, type) 
                 {
+                	//console.log("wtf");
                     if (typeof(callback_error) !== "undefined") {
                         callback_error();
                     }
                 },
-                success: function(f, status, xhr)
+                success: function(data)
                 {
+                	//console.log(data);
                     if (typeof(callback) !== "undefined") {
-                        callback(f);
+                        callback(data);
                     }
                 }
             });
             return false;
         }
         
-		//dimTimer = setTimeout("dim_screen();", 3000000);
+		dimTimer = setTimeout("dim_screen();", 3000000);
+
+		function turnoff_screen() {
+			$('#dim_overlay').show();
+			request_backend("cmd=set_brightness&parm=0");
+			return false;
+		}
+
+		function diag() {
+			request_backend(
+				'cmd=shell&parm=' + encodeURIComponent('ifconfig wlan0 | grep "inet addr" | cut -d":" -f2 | cut -d" " -f1'),
+				true,
+				function(data){ $('#selfip').html(data.result)}, 
+				function(){ $('#selfip').html('Error!')}
+			);
+		}
 
 		function dim_screen() {
 			$('#dim_overlay').show();
-			request_backend("cmd=set_brightness&val=0");
+			request_backend("cmd=set_brightness&parm=5");
 			return false;
 		}
 
 		function undim_screen() {
 			$('#dim_overlay').hide();
-			request_backend("cmd=set_brightness&val=60");
+			request_backend("cmd=set_brightness&parm=60");
 			clearTimeout(dimTimer);
-			//dimTimer = setTimeout("dim_screen();", 3000000);
+			dimTimer = setTimeout("dim_screen();", 3000000);
 			return false;
 		}
 
