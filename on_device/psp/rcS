@@ -166,6 +166,8 @@ echo -n "Getting ip.." | fbwrite --color=255,255,255 --pos=1,14 -
 ETH_ADDR=`ifconfig  | grep 'inet addr:'| grep -v '127.0.0.1' | cut -d: -f2 | awk '{ print $1}'`
 echo -en "     ${ETH_ADDR}" | fbwrite --color=255,255,255 --pos=1,15 -
 
+swapon -a
+
 ###################
 echo -n "System is configured and running!" | fbwrite --color=255,255,255 --pos=1,17 -
 
